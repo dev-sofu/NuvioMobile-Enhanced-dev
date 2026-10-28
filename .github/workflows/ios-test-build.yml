@@ -134,7 +134,7 @@ jobs:
           if missing_services:
               summary.append(f"- Expected Cast service entries missing: {', '.join(missing_services)}")
           with open(__import__('os').environ['GITHUB_STEP_SUMMARY'], 'a') as out:
-              out.write("\\n".join(summary) + "\\n")
+              out.write("\n".join(summary) + "\n")
 
           if not usage:
               print("::warning::The built IPA is missing NSLocalNetworkUsageDescription.")
