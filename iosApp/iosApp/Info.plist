@@ -83,6 +83,8 @@
 			</dict>
 		</dict>
 	</dict>
+	<key>NSLocalNetworkUsageDescription</key>
+	<string>Nuvio Enhanced uses your local network to discover and connect to Cast-enabled devices on your Wi-Fi network.</string>
 	<key>NSAppTransportSecurity</key>
 	<dict>
 		<key>NSAllowsArbitraryLoads</key>
