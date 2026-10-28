@@ -1259,8 +1259,20 @@ struct ComposeView: UIViewControllerRepresentable {
 }
 
 struct ContentView: View {
+    init() {
+        NuvioCastController.configureIfNeeded()
+    }
+
     var body: some View {
         ComposeView()
             .ignoresSafeArea()
+            .overlay(alignment: .topTrailing) {
+                NuvioCastButton()
+                    .frame(width: 48, height: 48)
+                    .background(.ultraThinMaterial, in: Circle())
+                    .padding(.top, 54)
+                    .padding(.trailing, 14)
+                    .accessibilityLabel("Cast to a device")
+            }
     }
 }
