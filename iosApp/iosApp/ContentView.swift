@@ -2,6 +2,7 @@ import UIKit
 import SwiftUI
 import ComposeApp
 import ImageIO
+import GoogleCast
 
 private enum NuvioNativeTabIcon {
     struct ProfileAvatarAnimation {
