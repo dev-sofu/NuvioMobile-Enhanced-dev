@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		C457A8B2D9E14F73A60B1C24 /* GoogleCast in Frameworks */ = {isa = PBXBuildFile; productRef = C457A8B2D9E14F73A60B1C23 /* GoogleCast */; };
 		0A1B2C3D4E5F60718293A4BD /* DownloadsWidgetExtension.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = 0A1B2C3D4E5F60718293A4B5 /* DownloadsWidgetExtension.appex */; };
 		7397CF462F80FE3A00AC0F84 /* MPVKit in Frameworks */ = {isa = PBXBuildFile; productRef = A1B2C3D4E5F6A7B8C9D0E1F2 /* MPVKit */; };
 		7A71E8B42F90A10100C0D3E1 /* TDLibFramework in Frameworks */ = {isa = PBXBuildFile; productRef = 7A71E8B62F90A10100C0D3E1 /* TDLibFramework */; };
@@ -96,6 +97,7 @@
 			files = (
 				7397CF462F80FE3A00AC0F84 /* MPVKit in Frameworks */,
 				7A71E8B42F90A10100C0D3E1 /* TDLibFramework in Frameworks */,
+				C457A8B2D9E14F73A60B1C24 /* GoogleCast in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -202,6 +204,7 @@
 			mainGroup = 4BD16EE0A246E7EC8E40D563;
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
+				C457A8B2D9E14F73A60B1C22 /* XCRemoteSwiftPackageReference "CastSDK-ios" */,
 				F1E2D3C4B5A6F7E8D9C0B1A2 /* XCLocalSwiftPackageReference "../MPVKit" */,
 				7A71E8B52F90A10100C0D3E1 /* XCRemoteSwiftPackageReference "TDLibFramework" */,
 			);
