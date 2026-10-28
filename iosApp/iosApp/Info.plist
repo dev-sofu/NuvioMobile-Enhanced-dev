@@ -105,5 +105,12 @@
 	<true/>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<false/>
+	<key>NSLocalNetworkUsageDescription</key>
+	<string>Nuvio uses your local network to discover and connect to compatible Cast devices.</string>
+	<key>NSBonjourServices</key>
+	<array>
+		<string>_googlecast._tcp</string>
+		<string>_googlecast-._tcp</string>
+	</array>
 </dict>
 </plist>
