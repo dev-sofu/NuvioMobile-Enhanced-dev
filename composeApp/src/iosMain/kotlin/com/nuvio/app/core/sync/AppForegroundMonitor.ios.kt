@@ -7,13 +7,13 @@ import platform.Foundation.NSNotificationCenter
 import platform.UIKit.UIApplicationDidBecomeActiveNotification
 
 internal actual object AppForegroundMonitor {
-    actual fun events(): Flow<Unit> = callbackFlow {
+    actual fun events(): Flow<AppVisibility> = callbackFlow {
         val observer = NSNotificationCenter.defaultCenter.addObserverForName(
             name = UIApplicationDidBecomeActiveNotification,
             `object` = null,
             queue = null,
         ) { _ ->
-            trySend(Unit)
+            trySend(AppVisibility.Foreground)
         }
 
         awaitClose {
