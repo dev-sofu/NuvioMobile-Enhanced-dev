@@ -594,15 +594,15 @@
 				revision = aeaac616c2ad680c6bfbb389a1ec22183767486b;
 			};
 		};
-\t\tC457A8B2D9E14F73A60B1C22 /* XCRemoteSwiftPackageReference "CastSDK-ios" */ = {
-\t\t\tisa = XCRemoteSwiftPackageReference;
-\t\t\trepositoryURL = "https://github.com/googlecast/CastSDK-ios";
-\t\t\trequirement = {
-\t\t\t\tkind = upToNextMajorVersion;
-\t\t\t\tminimumVersion = 4.8.3;
-\t\t\t};
-\t\t};
-\t/* End XCRemoteSwiftPackageReference section */
+		C457A8B2D9E14F73A60B1C22 /* XCRemoteSwiftPackageReference "CastSDK-ios" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/googlecast/CastSDK-ios";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 4.8.3;
+			};
+		};
+	/* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
 		A1B2C3D4E5F6A7B8C9D0E1F2 /* MPVKit */ = {
@@ -615,12 +615,12 @@
 			package = 7A71E8B52F90A10100C0D3E1 /* XCRemoteSwiftPackageReference "TDLibFramework" */;
 			productName = TDLibFramework;
 		};
-\t\tC457A8B2D9E14F73A60B1C23 /* GoogleCast */ = {
-\t\t\tisa = XCSwiftPackageProductDependency;
-\t\t\tpackage = C457A8B2D9E14F73A60B1C22 /* XCRemoteSwiftPackageReference "CastSDK-ios" */;
-\t\t\tproductName = GoogleCast;
-\t\t};
-\t/* End XCSwiftPackageProductDependency section */
+		C457A8B2D9E14F73A60B1C23 /* GoogleCast */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = C457A8B2D9E14F73A60B1C22 /* XCRemoteSwiftPackageReference "CastSDK-ios" */;
+			productName = GoogleCast;
+		};
+	/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = E819B502921EC7C68AC4965A /* Project object */;
 }
