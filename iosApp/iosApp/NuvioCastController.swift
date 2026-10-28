@@ -15,32 +15,57 @@ enum NuvioCastController {
         configured = true
     }
 
-    /// Starts a real Bonjour browse when the user taps Cast. iOS presents its
-    /// Local Network permission alert when this operation first accesses the
-    /// local network, provided the app's Info.plist contains the required keys.
+    /// Starts a Bonjour browse when the user taps Cast and logs its state so
+    /// Local Network permission failures can be distinguished from no devices.
     static func requestLocalNetworkAccessForCast() {
-        guard localNetworkBrowser == nil else { return }
+        guard localNetworkBrowser == nil else {
+            print("Nuvio Cast diagnostics: Bonjour browser already running")
+            return
+        }
 
+        print("Nuvio Cast diagnostics: starting Bonjour browse for _googlecast._tcp")
         let browser = NWBrowser(
             for: .bonjour(type: "_googlecast._tcp", domain: nil),
             using: .tcp
         )
+
         browser.stateUpdateHandler = { state in
             switch state {
+            case .setup:
+                print("Nuvio Cast diagnostics: browser state = setup")
+            case .ready:
+                print("Nuvio Cast diagnostics: browser state = ready")
+            case .waiting(let error):
+                print("Nuvio Cast diagnostics: browser state = waiting; error = \(String(reflecting: error))")
+                if case .dns(let code) = error, Int(code) == -65570 {
+                    print("Nuvio Cast diagnostics: DNS policy denied; Local Network access is not granted")
+                }
+                if case .posix(let code) = error, code == .EACCES {
+                    print("Nuvio Cast diagnostics: POSIX access denied")
+                }
             case .failed(let error):
-                print("Nuvio Cast local-network browser failed: \(error)")
+                print("Nuvio Cast diagnostics: browser state = failed; error = \(String(reflecting: error))")
                 browser.cancel()
                 if localNetworkBrowser === browser {
                     localNetworkBrowser = nil
                 }
             case .cancelled:
+                print("Nuvio Cast diagnostics: browser state = cancelled")
                 if localNetworkBrowser === browser {
                     localNetworkBrowser = nil
                 }
-            default:
-                break
+            @unknown default:
+                print("Nuvio Cast diagnostics: browser state = unknown")
             }
         }
+
+        browser.browseResultsChangedHandler = { results, changes in
+            print("Nuvio Cast diagnostics: browse results changed; count = \(results.count)")
+            for result in results {
+                print("Nuvio Cast diagnostics: discovered service = \(result.endpoint)")
+            }
+        }
+
         localNetworkBrowser = browser
         browser.start(queue: .main)
     }
