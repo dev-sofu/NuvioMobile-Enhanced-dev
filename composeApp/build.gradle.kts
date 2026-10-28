@@ -509,6 +509,7 @@ kotlin {
                 implementation(libs.androidx.media3.datasource.okhttp)
                 implementation(libs.androidx.media3.decoder)
                 implementation(libs.androidx.media3.session)
+                implementation(libs.androidx.media3.cast)
                 implementation(libs.androidx.media3.common)
                 implementation(libs.androidx.media3.container)
                 implementation(libs.androidx.media3.extractor)
