@@ -7,7 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		C457A8B2D9E14F73A60B1C24 /* GoogleCast in Frameworks */ = {isa = PBXBuildFile; productRef = C457A8B2D9E14F73A60B1C23 /* GoogleCast */; };
+		C457A8B2D9E14F73A60B1C24 /* GoogleCastDynamic in Frameworks */ = {isa = PBXBuildFile; productRef = C457A8B2D9E14F73A60B1C23 /* GoogleCastDynamic */; };
 		0A1B2C3D4E5F60718293A4BD /* DownloadsWidgetExtension.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = 0A1B2C3D4E5F60718293A4B5 /* DownloadsWidgetExtension.appex */; };
 		7397CF462F80FE3A00AC0F84 /* MPVKit in Frameworks */ = {isa = PBXBuildFile; productRef = A1B2C3D4E5F6A7B8C9D0E1F2 /* MPVKit */; };
 		7A71E8B42F90A10100C0D3E1 /* TDLibFramework in Frameworks */ = {isa = PBXBuildFile; productRef = 7A71E8B62F90A10100C0D3E1 /* TDLibFramework */; };
@@ -596,10 +596,10 @@
 		};
 		C457A8B2D9E14F73A60B1C22 /* XCRemoteSwiftPackageReference "CastSDK-ios" */ = {
 			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/googlecast/CastSDK-ios";
+			repositoryURL = "https://github.com/googlecast/google-cast-ios-sdk";
 			requirement = {
 				kind = upToNextMajorVersion;
-				minimumVersion = 4.8.3;
+				minimumVersion = 4.8.6;
 			};
 		};
 	/* End XCRemoteSwiftPackageReference section */
@@ -618,7 +618,7 @@
 		C457A8B2D9E14F73A60B1C23 /* GoogleCast */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = C457A8B2D9E14F73A60B1C22 /* XCRemoteSwiftPackageReference "CastSDK-ios" */;
-			productName = GoogleCast;
+			productName = GoogleCastDynamic;
 		};
 	/* End XCSwiftPackageProductDependency section */
 	};
