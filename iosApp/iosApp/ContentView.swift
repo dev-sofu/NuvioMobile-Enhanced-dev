@@ -1267,12 +1267,23 @@ struct ContentView: View {
         ComposeView()
             .ignoresSafeArea()
             .overlay(alignment: .topTrailing) {
-                NuvioCastButton()
-                    .frame(width: 48, height: 48)
-                    .background(.ultraThinMaterial, in: Circle())
-                    .padding(.top, 54)
-                    .padding(.trailing, 14)
-                    .accessibilityLabel("Cast to a device")
+                Button {
+                    // Present the SDK dialog explicitly rather than relying on
+                    // the native button's default tap handling inside SwiftUI.
+                    GCKCastContext.sharedInstance().presentCastDialog()
+                } label: {
+                    Image(systemName: "airplayvideo")
+                        .font(.system(size: 22, weight: .semibold))
+                        .foregroundStyle(.white)
+                        .frame(width: 48, height: 48)
+                        .background(.ultraThinMaterial, in: Circle())
+                        .contentShape(Circle())
+                }
+                .buttonStyle(.plain)
+                .accessibilityLabel("Cast to a device")
+                .padding(.top, 54)
+                .padding(.trailing, 14)
+                .zIndex(1000)
             }
     }
 }
