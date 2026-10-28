@@ -88,6 +88,60 @@ jobs:
           trap 'kill "${monitor_pid}" 2>/dev/null || true' EXIT
           ./scripts/build-ios-ipa.sh
 
+      - name: Verify embedded iOS Local Network permissions
+        run: |
+          configuration_slug="$(printf '%s' "${IOS_CONFIGURATION}" | tr '[:upper:]' '[:lower:]')"
+          ipa_path="$(find build/ios-ipa -maxdepth 1 -type f -name "*-full-${configuration_slug}.ipa" -print -quit)"
+          if [[ -z "${ipa_path}" ]]; then
+            echo "No IPA found for permission verification." >&2
+            exit 1
+          fi
+
+          python3 - "${ipa_path}" <<'PY'
+          import plistlib
+          import sys
+          import zipfile
+
+          ipa_path = sys.argv[1]
+          with zipfile.ZipFile(ipa_path) as archive:
+              plist_paths = [
+                  name for name in archive.namelist()
+                  if name.startswith("Payload/") and name.endswith(".app/Info.plist")
+              ]
+              if not plist_paths:
+                  raise SystemExit("ERROR: No app Info.plist found inside the IPA.")
+              with archive.open(plist_paths[0]) as stream:
+                  info = plistlib.load(stream)
+
+          usage = info.get("NSLocalNetworkUsageDescription")
+          services = info.get("NSBonjourServices", [])
+          required_services = {"_googlecast._tcp", "_googlecast-._tcp"}
+          missing_services = sorted(required_services - set(services))
+
+          print(f"App Info.plist: {plist_paths[0]}")
+          print(f"Bundle identifier: {info.get('CFBundleIdentifier', '(missing)')}")
+          print(f"NSLocalNetworkUsageDescription: {'PRESENT' if usage else 'MISSING'}")
+          print(f"NSBonjourServices: {services if services else 'MISSING'}")
+
+          summary = [
+              "## Embedded Local Network permission check",
+              "",
+              f"- App Info.plist: `{plist_paths[0]}`",
+              f"- Bundle identifier: `{info.get('CFBundleIdentifier', '(missing)')}`",
+              f"- NSLocalNetworkUsageDescription: {'PASS' if usage else 'FAIL — missing or empty'}",
+              f"- NSBonjourServices: {', '.join(services) if services else 'MISSING'}",
+          ]
+          if missing_services:
+              summary.append(f"- Expected Cast service entries missing: {', '.join(missing_services)}")
+          with open(__import__('os').environ['GITHUB_STEP_SUMMARY'], 'a') as out:
+              out.write("\\n".join(summary) + "\\n")
+
+          if not usage:
+              print("::warning::The built IPA is missing NSLocalNetworkUsageDescription.")
+          if missing_services:
+              print("::warning::The built IPA is missing one or more expected Cast Bonjour service entries.")
+          PY
+
       - name: Summarize IPA
         run: |
           configuration_slug="$(printf '%s' "${IOS_CONFIGURATION}" | tr '[:upper:]' '[:lower:]')"
