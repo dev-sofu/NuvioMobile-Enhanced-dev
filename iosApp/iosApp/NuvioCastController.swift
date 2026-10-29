@@ -79,7 +79,13 @@ enum NuvioCastController {
         }
 
         browser.browseResultsChangedHandler = { results, changes in
-            NuvioCastDiagnostics.shared.update(results.isEmpty ? "Browser ready; 0 Google Cast services found on this Wi-Fi." : "Browser ready; found " + String(results.count) + " Google Cast service(s).")
+            let endpoints = results.map { String(reflecting: $0.endpoint) }
+            let details = endpoints.isEmpty ? "No Bonjour endpoints returned." : endpoints.joined(separator: "\n")
+            NuvioCastDiagnostics.shared.update(
+                results.isEmpty
+                    ? "Bonjour browser is ready, but found 0 services.\n\n" + details
+                    : "Bonjour found " + String(results.count) + " service(s):\n" + details + "\n\nCompare these with the Google Cast picker."
+            )
             print("Nuvio Cast diagnostics: browse results changed; count = \(results.count)")
             for result in results {
                 print("Nuvio Cast diagnostics: discovered service = \(result.endpoint)")
