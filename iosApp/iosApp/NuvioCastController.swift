@@ -44,10 +44,13 @@ enum NuvioCastController {
         browser.stateUpdateHandler = { state in
             switch state {
             case .setup:
+                NuvioCastDiagnostics.shared.update("Browser setup started; waiting for iOS network permission.")
                 print("Nuvio Cast diagnostics: browser state = setup")
             case .ready:
+                NuvioCastDiagnostics.shared.update("Browser ready. Searching for Google Cast devices…")
                 print("Nuvio Cast diagnostics: browser state = ready")
             case .waiting(let error):
+                NuvioCastDiagnostics.shared.update("Waiting / access issue: " + String(reflecting: error))
                 print("Nuvio Cast diagnostics: browser state = waiting; error = \(String(reflecting: error))")
                 if case .dns(let code) = error, Int(code) == -65570 {
                     NuvioCastDiagnostics.shared.update("iOS denied local-network discovery (DNS policy -65570). Check Settings > Privacy & Security > Local Network, then relaunch the app.")
@@ -58,6 +61,7 @@ enum NuvioCastController {
                     print("Nuvio Cast diagnostics: POSIX access denied")
                 }
             case .failed(let error):
+                NuvioCastDiagnostics.shared.update("Discovery failed: " + String(reflecting: error))
                 print("Nuvio Cast diagnostics: browser state = failed; error = \(String(reflecting: error))")
                 browser.cancel()
                 if localNetworkBrowser === browser {
@@ -75,6 +79,7 @@ enum NuvioCastController {
         }
 
         browser.browseResultsChangedHandler = { results, changes in
+            NuvioCastDiagnostics.shared.update(results.isEmpty ? "Browser ready; 0 Google Cast services found on this Wi-Fi." : "Browser ready; found " + String(results.count) + " Google Cast service(s).")
             print("Nuvio Cast diagnostics: browse results changed; count = \(results.count)")
             for result in results {
                 print("Nuvio Cast diagnostics: discovered service = \(result.endpoint)")
