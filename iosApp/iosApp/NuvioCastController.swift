@@ -3,6 +3,16 @@ import UIKit
 import GoogleCast
 import Network
 
+/// Observable on-device status for troubleshooting Cast discovery.
+final class NuvioCastDiagnostics: ObservableObject {
+    static let shared = NuvioCastDiagnostics()
+    @Published private(set) var status = "Not started — tap Cast to begin discovery."
+    private init() {}
+    func update(_ message: String) {
+        DispatchQueue.main.async { self.status = message }
+    }
+}
+
 /// Native Cast entry point for the iOS app.
 enum NuvioCastController {
     private static var configured = false
@@ -20,9 +30,11 @@ enum NuvioCastController {
     static func requestLocalNetworkAccessForCast() {
         guard localNetworkBrowser == nil else {
             print("Nuvio Cast diagnostics: Bonjour browser already running")
+            NuvioCastDiagnostics.shared.update("Discovery is already running. Dismiss the Cast picker and check again.")
             return
         }
 
+        NuvioCastDiagnostics.shared.update("Starting Bonjour discovery for Google Cast…")
         print("Nuvio Cast diagnostics: starting Bonjour browse for _googlecast._tcp")
         let browser = NWBrowser(
             for: .bonjour(type: "_googlecast._tcp", domain: nil),
@@ -38,9 +50,11 @@ enum NuvioCastController {
             case .waiting(let error):
                 print("Nuvio Cast diagnostics: browser state = waiting; error = \(String(reflecting: error))")
                 if case .dns(let code) = error, Int(code) == -65570 {
+                    NuvioCastDiagnostics.shared.update("iOS denied local-network discovery (DNS policy -65570). Check Settings > Privacy & Security > Local Network, then relaunch the app.")
                     print("Nuvio Cast diagnostics: DNS policy denied; Local Network access is not granted")
                 }
                 if case .posix(let code) = error, code == .EACCES {
+                    NuvioCastDiagnostics.shared.update("iOS denied network access (POSIX EACCES). Check Local Network privacy settings.")
                     print("Nuvio Cast diagnostics: POSIX access denied")
                 }
             case .failed(let error):
@@ -50,6 +64,7 @@ enum NuvioCastController {
                     localNetworkBrowser = nil
                 }
             case .cancelled:
+                NuvioCastDiagnostics.shared.update("Discovery was cancelled.")
                 print("Nuvio Cast diagnostics: browser state = cancelled")
                 if localNetworkBrowser === browser {
                     localNetworkBrowser = nil
