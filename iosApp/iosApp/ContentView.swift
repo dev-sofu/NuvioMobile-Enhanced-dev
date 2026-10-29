@@ -1260,6 +1260,9 @@ struct ComposeView: UIViewControllerRepresentable {
 }
 
 struct ContentView: View {
+    @StateObject private var castDiagnostics = NuvioCastDiagnostics.shared
+    @State private var showCastDiagnostics = false
+
     init() {
         NuvioCastController.configureIfNeeded()
     }
@@ -1268,23 +1271,42 @@ struct ContentView: View {
         ComposeView()
             .ignoresSafeArea()
             .overlay(alignment: .topTrailing) {
-                Button {
-                    // Present the SDK dialog explicitly rather than relying on
-                    // the native button's default tap handling inside SwiftUI.
-                    GCKCastContext.sharedInstance().presentCastDialog()
-                } label: {
-                    Image(systemName: "airplayvideo")
-                        .font(.system(size: 22, weight: .semibold))
-                        .foregroundStyle(.white)
-                        .frame(width: 48, height: 48)
-                        .background(.ultraThinMaterial, in: Circle())
-                        .contentShape(Circle())
+                VStack(alignment: .trailing, spacing: 8) {
+                    Button {
+                        // Start Bonjour discovery first so iOS can request Local Network access.
+                        NuvioCastController.requestLocalNetworkAccessForCast()
+                        GCKCastContext.sharedInstance().presentCastDialog()
+                    } label: {
+                        Image(systemName: "airplayvideo")
+                            .font(.system(size: 22, weight: .semibold))
+                            .foregroundStyle(.white)
+                            .frame(width: 48, height: 48)
+                            .background(.ultraThinMaterial, in: Circle())
+                            .contentShape(Circle())
+                    }
+                    .buttonStyle(.plain)
+                    .accessibilityLabel("Cast to a device")
+
+                    Button {
+                        showCastDiagnostics = true
+                    } label: {
+                        Label("Cast status", systemImage: "network")
+                            .font(.system(size: 12, weight: .medium))
+                            .foregroundStyle(.white)
+                            .padding(.horizontal, 10)
+                            .padding(.vertical, 7)
+                            .background(.black.opacity(0.72), in: Capsule())
+                    }
+                    .buttonStyle(.plain)
                 }
-                .buttonStyle(.plain)
-                .accessibilityLabel("Cast to a device")
                 .padding(.top, 54)
                 .padding(.trailing, 14)
                 .zIndex(1000)
+            }
+            .alert("Cast Diagnostics", isPresented: $showCastDiagnostics) {
+                Button("OK", role: .cancel) {}
+            } message: {
+                Text(castDiagnostics.status)
             }
     }
 }
