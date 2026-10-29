@@ -17,6 +17,7 @@ final class NuvioCastDiagnostics: ObservableObject {
 enum NuvioCastController {
     private static var configured = false
     private static var localNetworkBrowser: NWBrowser?
+    private static var lastBonjourEndpoints: [String] = []
 
     static func configureIfNeeded() {
         guard !configured else { return }
@@ -80,6 +81,7 @@ enum NuvioCastController {
 
         browser.browseResultsChangedHandler = { results, changes in
             let endpoints = results.map { String(reflecting: $0.endpoint) }
+            lastBonjourEndpoints = endpoints
             let details = endpoints.isEmpty ? "No Bonjour endpoints returned." : endpoints.joined(separator: "\n")
             NuvioCastDiagnostics.shared.update(
                 results.isEmpty
@@ -94,6 +96,21 @@ enum NuvioCastController {
 
         localNetworkBrowser = browser
         browser.start(queue: .main)
+
+        // The custom Bonjour browser and Cast SDK use separate discovery pipelines.
+        let discoveryManager = GCKCastContext.sharedInstance().discoveryManager
+        discoveryManager.startDiscovery()
+        DispatchQueue.main.asyncAfter(deadline: .now() + 5) {
+            let sdkCount = discoveryManager.deviceCount
+            let bonjourCount = lastBonjourEndpoints.count
+            let endpoints = lastBonjourEndpoints.isEmpty ? "none" : lastBonjourEndpoints.joined(separator: "\n")
+            let sdkSummary = sdkCount == 0
+                ? "Google Cast SDK devices: 0. The SDK is not accepting these services as Cast devices; check TV receiver compatibility and SDK discovery."
+                : "Google Cast SDK devices: " + String(sdkCount) + "."
+            NuvioCastDiagnostics.shared.update(
+                "Bonjour services: " + String(bonjourCount) + "\n" + endpoints + "\n\n" + sdkSummary
+            )
+        }
     }
 }
 
