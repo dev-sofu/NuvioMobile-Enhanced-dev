@@ -37,7 +37,8 @@ enum NuvioCastController {
         subtitle: String? = nil,
         artworkURLString: String? = nil,
         contentType: String? = nil,
-        startTime: TimeInterval = 0
+        startTime: TimeInterval = 0,
+        hasRequestHeaders: Bool = false
     ) -> Bool {
         guard let url = URL(string: urlString),
               let scheme = url.scheme?.lowercased(),
@@ -46,14 +47,22 @@ enum NuvioCastController {
             return false
         }
 
-        guard let remoteClient = GCKCastContext.sharedInstance().sessionManager.currentCastSession?.remoteMediaClient else {
-            NuvioCastDiagnostics.shared.update("Choose and connect to a Cast device first, then try casting again.")
+        if hasRequestHeaders {
+            NuvioCastDiagnostics.shared.update("This stream requires request headers. The Default Media Receiver cannot forward Nuvio's private headers, so this source cannot be cast yet.")
             return false
         }
 
-        let resolvedContentType = contentType?.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty == false
-            ? contentType!
-            : (url.pathExtension.lowercased() == "m3u8" ? "application/x-mpegURL" : "video/mp4")
+        guard let remoteClient = GCKCastContext.sharedInstance().sessionManager.currentCastSession?.remoteMediaClient else {
+            requestLocalNetworkAccessForCast()
+            NuvioCastDiagnostics.shared.update("Select your TV in the Cast picker. Once connected, tap Cast again to send this video.")
+            GCKCastContext.sharedInstance().presentCastDialog()
+            return false
+        }
+
+        let suppliedType = contentType?.trimmingCharacters(in: .whitespacesAndNewlines)
+        let resolvedContentType = suppliedType?.contains("/") == true
+            ? suppliedType!
+            : (url.pathExtension.lowercased() == "m3u8" ? "application/x-mpegURL" : "video/mp4')
         let metadata = GCKMediaMetadata(metadataType: .movie)
         metadata.setString(title, forKey: kGCKMetadataKeyTitle)
         if let subtitle, !subtitle.isEmpty {
