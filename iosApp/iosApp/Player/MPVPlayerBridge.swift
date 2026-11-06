@@ -33,7 +33,8 @@ final class MPVPlayerBridgeImpl: NSObject, NuvioPlayerBridge {
         subtitle: String?,
         artworkUrl: String?,
         contentType: String?,
-        startTimeSeconds: Double
+        startTimeSeconds: Double,
+        hasRequestHeaders: Bool
     ) -> Bool {
         NuvioCastController.loadRemoteMedia(
             urlString: url,
@@ -41,7 +42,8 @@ final class MPVPlayerBridgeImpl: NSObject, NuvioPlayerBridge {
             subtitle: subtitle,
             artworkURLString: artworkUrl,
             contentType: contentType,
-            startTime: startTimeSeconds
+            startTime: startTimeSeconds,
+            hasRequestHeaders: hasRequestHeaders
         )
     }
     func loadFileWithAudio(videoUrl: String, audioUrl: String?, headersJson: String?, subtitlesJson: String?) {
