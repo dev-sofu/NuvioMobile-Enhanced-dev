@@ -102,6 +102,7 @@ internal fun PlayerControlsShell(
     onSubtitleClick: (() -> Unit)?,
     onSubtitleSyncClick: (() -> Unit)? = null,
     onAudioClick: (() -> Unit)?,
+    onCastClick: (() -> Unit)? = null,
     qualityLabel: String? = null,
     onQualityClick: (() -> Unit)? = null,
     onChannelsClick: (() -> Unit)? = null,
@@ -239,6 +240,7 @@ internal fun PlayerControlsShell(
                     onSubtitleClick = onSubtitleClick,
                     onSubtitleSyncClick = onSubtitleSyncClick,
                     onAudioClick = onAudioClick,
+                    onCastClick = onCastClick,
                     qualityLabel = qualityLabel,
                     onQualityClick = onQualityClick,
                     onChannelsClick = onChannelsClick,
@@ -772,6 +774,7 @@ private fun ProgressControls(
     onSubtitleClick: (() -> Unit)?,
     onSubtitleSyncClick: (() -> Unit)? = null,
     onAudioClick: (() -> Unit)?,
+    onCastClick: (() -> Unit)? = null,
     qualityLabel: String? = null,
     onQualityClick: (() -> Unit)? = null,
     onChannelsClick: (() -> Unit)? = null,
@@ -867,6 +870,13 @@ private fun ProgressControls(
                             label = stringResource(Res.string.compose_player_audio),
                             painter = audioPainter,
                             onClick = onAudioClick,
+                        )
+                    }
+                    if (onCastClick != null) {
+                        PlayerActionPillButton(
+                            label = "Cast",
+                            icon = Icons.Rounded.Tv,
+                            onClick = onCastClick,
                         )
                     }
                     if (onQualityClick != null) {
