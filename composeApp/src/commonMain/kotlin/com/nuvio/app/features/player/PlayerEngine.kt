@@ -9,6 +9,7 @@ interface PlayerEngineController {
     fun seekTo(positionMs: Long)
     fun seekBy(offsetMs: Long)
     fun retry()
+    fun castMedia(url: String, title: String, subtitle: String?, artworkUrl: String?, contentType: String?, startTimeMs: Long): Boolean = false
     fun setPlaybackSpeed(speed: Float)
     fun setMuted(muted: Boolean) {}
     fun setVolumeBoost(multiplier: Float) {}
