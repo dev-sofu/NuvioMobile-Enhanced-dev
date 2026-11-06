@@ -290,6 +290,21 @@ private fun PlayerScreenRuntime.RenderPlayerControls(displayedPositionMs: Long, 
                 refreshTracks()
                 showAudioModal = true
             },
+            onCastClick = if (isIos && !isP2pPlaybackActive) {
+                {
+                    val castUrl = externalPlayerSourceUrl()
+                    playerController?.castMedia(
+                        url = castUrl,
+                        title = title,
+                        subtitle = activeStreamTitle.takeIf { it.isNotBlank() },
+                        artworkUrl = poster ?: background,
+                        contentType = activeStreamType,
+                        startTimeMs = playbackSnapshot.positionMs,
+                    )
+                }
+            } else {
+                null
+            },
             qualityLabel = playerQualityControlLabel(),
             onQualityClick = if (!isLiveTv && activeTorrentInfoHash == null) {
                 { openQualityPanel() }
