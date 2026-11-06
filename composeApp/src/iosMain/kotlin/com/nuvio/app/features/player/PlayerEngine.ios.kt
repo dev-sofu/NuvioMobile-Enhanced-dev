@@ -102,6 +102,19 @@ actual fun PlatformPlayerSurface(
                 bridge.retry()
             }
 
+            override fun castMedia(url: String, title: String, subtitle: String?, artworkUrl: String?, contentType: String?, startTimeMs: Long): Boolean {
+                // Google Cast Default Media Receiver fetches media directly; it cannot
+                // reuse the iPhone player's private request headers.
+                if (sourceHeaders.isNotEmpty()) return false
+                val normalizedType = contentType?.takeIf { it.isNotBlank() }
+                    ?: when {
+                        url.substringBefore('?').endsWith(".m3u8", ignoreCase = true) -> "application/x-mpegURL"
+                        url.substringBefore('?').endsWith(".mp4", ignoreCase = true) -> "video/mp4"
+                        else -> null
+                    }
+                return bridge.castMedia(url, title, subtitle, artworkUrl, normalizedType, startTimeMs.coerceAtLeast(0L) / 1000.0)
+            }
+
             override fun updateNowPlayingMetadata(info: PlayerNowPlayingInfo) {
                 runCatching {
                     bridge.updateNowPlayingMetadata(
