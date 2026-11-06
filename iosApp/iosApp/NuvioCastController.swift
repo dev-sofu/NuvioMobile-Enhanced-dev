@@ -62,7 +62,7 @@ enum NuvioCastController {
         let suppliedType = contentType?.trimmingCharacters(in: .whitespacesAndNewlines)
         let resolvedContentType = suppliedType?.contains("/") == true
             ? suppliedType!
-            : (url.pathExtension.lowercased() == "m3u8" ? "application/x-mpegURL" : "video/mp4')
+            : (url.pathExtension.lowercased() == "m3u8" ? "application/x-mpegURL" : "video/mp4")
         let metadata = GCKMediaMetadata(metadataType: .movie)
         metadata.setString(title, forKey: kGCKMetadataKeyTitle)
         if let subtitle, !subtitle.isEmpty {
