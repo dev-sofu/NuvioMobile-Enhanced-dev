@@ -26,6 +26,56 @@ enum NuvioCastController {
         configured = true
     }
 
+    
+    /// Loads a playable HTTP(S) media URL on the currently connected Cast receiver.
+    /// The Default Media Receiver cannot reliably consume arbitrary Nuvio auth headers;
+    /// callers must only offer URLs that the receiver can fetch directly.
+    @discardableResult
+    static func loadRemoteMedia(
+        urlString: String,
+        title: String,
+        subtitle: String? = nil,
+        artworkURLString: String? = nil,
+        contentType: String? = nil,
+        startTime: TimeInterval = 0
+    ) -> Bool {
+        guard let url = URL(string: urlString),
+              let scheme = url.scheme?.lowercased(),
+              scheme == "https" || scheme == "http" else {
+            NuvioCastDiagnostics.shared.update("Cast could not start: the media URL must be a valid HTTP or HTTPS URL.")
+            return false
+        }
+
+        guard let remoteClient = GCKCastContext.sharedInstance().sessionManager.currentCastSession?.remoteMediaClient else {
+            NuvioCastDiagnostics.shared.update("Choose and connect to a Cast device first, then try casting again.")
+            return false
+        }
+
+        let resolvedContentType = contentType?.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty == false
+            ? contentType!
+            : (url.pathExtension.lowercased() == "m3u8" ? "application/x-mpegURL" : "video/mp4")
+        let metadata = GCKMediaMetadata(metadataType: .movie)
+        metadata.setString(title, forKey: kGCKMetadataKeyTitle)
+        if let subtitle, !subtitle.isEmpty {
+            metadata.setString(subtitle, forKey: kGCKMetadataKeySubtitle)
+        }
+        if let artworkURLString, let artworkURL = URL(string: artworkURLString) {
+            metadata.addImage(GCKImage(url: artworkURL, width: 512, height: 512))
+        }
+
+        let mediaBuilder = GCKMediaInformationBuilder(contentURL: url)
+        mediaBuilder.contentType = resolvedContentType
+        mediaBuilder.streamType = .buffered
+        mediaBuilder.metadata = metadata
+        let loadOptions = GCKMediaLoadOptions()
+        loadOptions.autoplay = true
+        loadOptions.startTime = max(0, startTime)
+
+        NuvioCastDiagnostics.shared.update("Sending media to the connected Cast receiver…")
+        remoteClient.loadMedia(mediaBuilder.build(), with: loadOptions)
+        return true
+    }
+
     /// Starts a Bonjour browse when the user taps Cast and logs its state so
     /// Local Network permission failures can be distinguished from no devices.
     static func requestLocalNetworkAccessForCast() {
