@@ -27,6 +27,23 @@ final class MPVPlayerBridgeImpl: NSObject, NuvioPlayerBridge {
     }
 
     func loadFile(url: String) { ensurePlayerViewController().loadFile(url) }
+    func castMedia(
+        url: String,
+        title: String,
+        subtitle: String?,
+        artworkUrl: String?,
+        contentType: String?,
+        startTimeSeconds: Double
+    ) -> Bool {
+        NuvioCastController.loadRemoteMedia(
+            urlString: url,
+            title: title,
+            subtitle: subtitle,
+            artworkURLString: artworkUrl,
+            contentType: contentType,
+            startTime: startTimeSeconds
+        )
+    }
     func loadFileWithAudio(videoUrl: String, audioUrl: String?, headersJson: String?, subtitlesJson: String?) {
         ensurePlayerViewController().loadFile(
             videoUrl,
