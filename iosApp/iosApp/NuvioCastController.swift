@@ -104,7 +104,7 @@ enum NuvioCastController {
         mediaBuilder.metadata = metadata
         let loadOptions = GCKMediaLoadOptions()
         loadOptions.autoplay = true
-        loadOptions.startTime = max(0, startTime)
+        loadOptions.playPosition = max(0, startTime)
 
         NuvioCastDiagnostics.shared.update("Sending media to the connected Cast receiver…")
         remoteClient.loadMedia(mediaBuilder.build(), with: loadOptions)
