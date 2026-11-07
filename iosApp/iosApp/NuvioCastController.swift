@@ -59,10 +59,36 @@ enum NuvioCastController {
             return false
         }
 
+        // The Default Media Receiver supports common web delivery formats, but
+        // it is not a general-purpose MPV replacement. Never mislabel an MKV
+        // (or an unknown container) as MP4: that can produce a silent load failure.
+        let fileExtension = url.pathExtension.lowercased()
         let suppliedType = contentType?.trimmingCharacters(in: .whitespacesAndNewlines)
-        let resolvedContentType = suppliedType?.contains("/") == true
-            ? suppliedType!
-            : (url.pathExtension.lowercased() == "m3u8" ? "application/x-mpegURL" : "video/mp4")
+        let resolvedContentType: String
+        if let suppliedType, suppliedType.contains("/") {
+            resolvedContentType = suppliedType
+        } else {
+            switch fileExtension {
+            case "m3u8":
+                resolvedContentType = "application/x-mpegURL"
+            case "mpd":
+                resolvedContentType = "application/dash+xml"
+            case "mp4", "m4v":
+                resolvedContentType = "video/mp4"
+            case "webm":
+                resolvedContentType = "video/webm"
+            case "mkv":
+                NuvioCastDiagnostics.shared.update(
+                    "This source is MKV. Your iPhone can decode it, but the Google Cast Default Media Receiver does not reliably support MKV. A server-side remux/transcode fallback is needed; this stream was not sent."
+                )
+                return false
+            default:
+                NuvioCastDiagnostics.shared.update(
+                    "Cast cannot identify this stream's container. Try a direct MP4, HLS (.m3u8), or DASH (.mpd) source."
+                )
+                return false
+            }
+        }
         let metadata = GCKMediaMetadata(metadataType: .movie)
         metadata.setString(title, forKey: kGCKMetadataKeyTitle)
         if let subtitle, !subtitle.isEmpty {
