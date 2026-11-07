@@ -290,7 +290,7 @@ private fun PlayerScreenRuntime.RenderPlayerControls(displayedPositionMs: Long, 
                 refreshTracks()
                 showAudioModal = true
             },
-            onCastClick = if (isIos && !isP2pPlaybackActive) {
+            onCastClick = if (isIos && activeTorrentInfoHash == null) {
                 {
                     val castUrl = externalPlayerSourceUrl()
                     playerController?.castMedia(
