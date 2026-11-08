@@ -20,9 +20,23 @@ temporary_directory="$(mktemp -d "${TMPDIR:-/tmp}/nuvio-ios-dependencies.XXXXXX"
 trap 'rm -rf "${temporary_directory}"' EXIT
 
 archive="${temporary_directory}/nuvio-engine-apple-${engine_version}.zip"
-curl --fail --location --retry 5 --retry-all-errors --silent --show-error \
-    --output "${archive}" \
-    "https://github.com/NuvioMedia/nuvio-engine/releases/download/v${engine_version}/nuvio-engine-apple-${engine_version}.zip"
+release_asset_url="https://github.com/NuvioMedia/nuvio-engine/releases/download/v${engine_version}/nuvio-engine-apple-${engine_version}.zip"
+api_asset_url="https://api.github.com/repos/NuvioMedia/nuvio-engine/releases/assets/497211532"
+
+# GitHub's release-download CDN can intermittently return HTTP 504 in CI.
+# Retry with backoff, then fall back to the GitHub Releases API asset endpoint.
+if ! curl --fail --location --retry 8 --retry-all-errors --retry-delay 3 \
+    --retry-max-time 300 --connect-timeout 30 --max-time 600 \
+    --silent --show-error --user-agent "Nuvio-iOS-CI" \
+    --output "${archive}" "${release_asset_url}"; then
+    echo "Release CDN download failed; retrying through the GitHub Releases API…" >&2
+    rm -f "${archive}"
+    curl --fail --location --retry 5 --retry-all-errors --retry-delay 3 \
+        --retry-max-time 240 --connect-timeout 30 --max-time 600 \
+        --silent --show-error --user-agent "Nuvio-iOS-CI" \
+        --header "Accept: application/octet-stream" \
+        --output "${archive}" "${api_asset_url}"
+fi
 
 actual_checksum="$(shasum -a 256 "${archive}" | awk '{print $1}')"
 if [[ "${actual_checksum}" != "${engine_checksum}" ]]; then
