@@ -86,7 +86,30 @@ jobs:
           ) &
           monitor_pid=$!
           trap 'kill "${monitor_pid}" 2>/dev/null || true' EXIT
-          ./scripts/build-ios-ipa.sh
+          build_log="${RUNNER_TEMP}/nuvio-ios-build.log"
+          for attempt in 1 2 3; do
+            echo "Starting iOS build attempt ${attempt}/3…"
+            set +e
+            ./scripts/build-ios-ipa.sh 2>&1 | tee "${build_log}"
+            build_status=${PIPESTATUS[0]}
+            set -e
+
+            if [[ ${build_status} -eq 0 ]]; then
+              exit 0
+            fi
+
+            if [[ ${attempt} -lt 3 ]] && grep -Eiq \
+              'badResponseStatusCode\\((502|503|504)\\)|HTTP[^[:cntrl:]]*(502|503|504)|curl: \\([0-9]+\\)|timed out|temporary failure|could not resolve host' \
+              "${build_log}"; then
+              delay=$((attempt * 30))
+              echo "::warning::Detected a transient dependency/network failure (exit ${build_status}); retrying the Xcode build in ${delay}s."
+              sleep "${delay}"
+              continue
+            fi
+
+            echo "iOS build failed with exit code ${build_status}; not retrying a non-transient failure."
+            exit "${build_status}"
+          done
 
       - name: Verify embedded iOS Local Network permissions
         run: |
